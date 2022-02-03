@@ -244,6 +244,9 @@ def main():
     K_H.shape: {K_H.shape}
     K_G.shape: {K_G.shape}''')
 
+    print(f'K_1 {np.sum(K1)}')
+    print(f'K_2 {np.sum(K2)}')
+
 
     ps.register_surface_mesh("my mesh", vertices, faces, smooth_shade=True)
 

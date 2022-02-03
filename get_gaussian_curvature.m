@@ -12,7 +12,7 @@ function K_G = get_gaussian_curvature(vertices, triangles, A_mixed)
         face_2 = triangles(:, 2) == i;
         face_3 = triangles(:, 3) == i;
 
-        faces_indices = find(face_1 | face_2 | face_3);
+        faces_indices = face_1 | face_2 | face_3;
         
         % Get all the triangles with current vertex. 
         req_t = triangles(faces_indices, :);
