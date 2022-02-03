@@ -1,10 +1,8 @@
-function [A_mixed, mean_curvature_normal_operator] = calc_A_mixed(vertices, triangles)
+function A_mixed = calc_A_mixed(vertices, triangles)
     numv = size(vertices, 1);
     numt = size(triangles, 1);
     
     A_mixed = zeros(numv, numt);
-    mean_curvature_normal_operator = zeros(numv, numt, 3);
-
     for i=1:numv
         % Check if any face contains the vetrex index 
         face_1 = triangles(:, 1) == i;
@@ -46,8 +44,6 @@ function [A_mixed, mean_curvature_normal_operator] = calc_A_mixed(vertices, tria
             angle_at_x = acos(dot(vec_1, vec_2));
 
             
-            % disp(angle_at_x);
-            
             % Obtuse angle
             if (angle_at_x > pi / 2)
                 A_mixed(i, tid) =  area / 2;
@@ -85,51 +81,10 @@ function [A_mixed, mean_curvature_normal_operator] = calc_A_mixed(vertices, tria
 
             A_v_of_tid = 0.125 * (  (cot_1 * power(norm(v0 - v2, 2), 2)) + (cot_2 * power(norm(v0 - v1, 2), 2))     );
             
-            mean_curvature_normal_operator_at_v_t = cot_1 * (v0 - v2) + cot_2 * (v0 - v1);
-
             A_mixed(i, tid) = A_v_of_tid;
-            mean_curvature_normal_operator(i, tid, :) = mean_curvature_normal_operator_at_v_t;
         end 
     end
     
     A_mixed = sum(A_mixed, 2);
-    % A_mixed[A_mixed == 0] = 10 ** -40
-
-    area_inv = 1 / (2 * A_mixed);
-
-    m = sum(mean_curvature_normal_operator, 2); % sum all faces.
-    m = reshape(m, size(m, 1), 3);
-
-    mean_curvature_normal_operator = (area_inv .* m.').';
-
-    % disp(size(A_mixed));
-    % disp(size(m));
-
-    
-    % mean_curvature_normal_operator = (
-    %     (1 / (2 * A_mixed)) * m.T).T
-
-    % sd;
-            
-            % in range(len(req_t)):
-
-        % disp(size(vertex_indices));
-
-
-        % disp(size(face_1 | face_2 | face_3));
-
-        % Get all the triangles has the current vertex.
-
-        % disp(size(face_1 | face_2 | face_3));
-        % disp(size(triangles));
-
-        % disp(req_t);
-        % disp(faces_indices);
-        % disp('req_t');
-
-        % sd;
-        % req_t = triangles[(triangles[:, 0] == i) | (triangles[:, 1] == i) | (triangles[:, 2] == i)]
-
-
-    % end
+    A_mixed(find(A_mixed == 0)) = 1e-12;
 end

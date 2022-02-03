@@ -6,22 +6,31 @@ function main
     % create a new figure 
     % figure('Name','Fun with Curves','NumberTitle','off','color','white')
     
-    mesh_file = 'samplemeshes\sphere_dense.off';
+    % mesh_file = 'samplemeshes\sphere_dense.off';
+    % mesh_file = 'samplemeshes\sphere_coarse.off';
+    mesh_file = 'samplemeshes\\torus.off';
 
     [vertices, faces] = loadmesh(mesh_file);
     vertices = vertices.';
     faces = faces.';
 
-    [A_mixed, mean_curvature_normal_operator] = calc_A_mixed(vertices, faces);
+    A_mixed = calc_A_mixed(vertices, faces);
 
-    K_H = get_mean_curvature(mean_curvature_normal_operator);
+    K_H = get_mean_curvature(vertices, faces, A_mixed);
     K_G = get_gaussian_curvature(vertices, faces, A_mixed);
 
     disp(size(K_G));
+    disp(size(K_H));
+
+    disp(sum(K_G));
+    disp(sum(K_H));
+
     
-    % [K_1, K_2 ]= get_principal_curvatures(K_H, K_G);
+    [K_1, K_2 ]= get_principal_curvatures(K_H, K_G);
 
     options.face_vertex_color = K_G;
+    options.face_vertex_color = K_H;
+
     plotmesh(vertices, faces, options);
 
 %    options.face_vertex_color = 
