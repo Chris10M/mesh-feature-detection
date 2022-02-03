@@ -47,5 +47,5 @@ function K_H = get_mean_curvature(vertices, triangles, A_mixed)
         K_N(i, :) = K_N(i, :) / (2 * A_mixed(i));
     end
     K_H = 0.5 * vecnorm(K_N, 2, 2);
-
 end
+
