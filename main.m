@@ -77,12 +77,18 @@ plotmesh(vertices, faces, options); colorbar;
 %% Classification - getting the histograms
 clc;
 
-fileList = dir('samplemeshes/*.off');
+base_path = 'samplemeshes/';
+
+fileList = dir(append(base_path, '*.off'));
 
 hists = zeros(size(fileList,1),256);
 for k = 1:size(fileList,1)
-  fprintf(1, 'Now reading %s\n', fileList(k).name);
-  hists(k,:) = extract_mesh_feature(fileList(k).name);
+    file_name = fileList(k).name;
+    file_path = append(base_path, file_name);
+
+    fprintf(1, 'Now reading %s\n', file_name);
+
+    hists(k,:) = extract_mesh_feature(file_path);
 end
 
 %% Classification - comparing histograms
@@ -119,7 +125,8 @@ CatFiles = ["sphere.off","cube_tri.off","torus.off"]';
 fprintf(1,'\n');
 CatHists = zeros(size(Categories,1),256);
 for k = 1:size(Categories,1)
-  CatHists(k,:) = extract_mesh_feature(CatFiles(k));
+    file_path = append(base_path, CatFiles(k));
+    CatHists(k,:) = extract_mesh_feature(file_path);
 end
 
 distances = zeros(size(CatHists,1),1);
