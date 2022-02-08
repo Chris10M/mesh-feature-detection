@@ -1,6 +1,6 @@
 %%code Rhaleb Zayer ---Geometric modeling lecture
 
-function [vnormals,h1]=plotmesh(vertex,face,options)
+function [vnormals,h1]=plotmesh_lighting(vertex,face,options)
 
 %
 %   'options' is a structure that may contains:
@@ -57,12 +57,12 @@ axis off;
 %
 %camproj('perspective');
 camproj('orthographic');
-% camlight headlight 
+camlight headlight 
 %
 %light('Position',[1 1 5],'Style','infinite','color','y');
 %light('Position',[0.43 0.5 0.75],'Style','infinite','color','w');
-% set(h1,'edgelighting','phong');
-% camlight infinite; lighting phong;
+set(h1,'edgelighting','phong');
+camlight infinite; lighting phong;
 %
 set(gcf,'Renderer','OpenGL')
 
@@ -71,15 +71,15 @@ lims=real(boundbox(vertex,face));
 lipos=[lims(1)+lims(2) lims(3)+lims(4) lims(5)+lims(6)]/2;
 lighting phong;
 %set(h1,'edgelighting','phong');
-% hc=camlight('local');
-% set(hc,'color','b');
+hc=camlight('local');
+set(hc,'color','b');
 
 %light('Position',[2 1 15],'Style','infinite','color','y');
-% light('Position',[lims(2) lims(4) 0],'Style','local','color',[ 0.000 0.000 0.627 ]);
+light('Position',[lims(2) lims(4) 0],'Style','local','color',[ 0.000 0.000 0.627 ]);
 %light('Position',[0 lims(4) lims(6)],'Style','local','color',[ 0.855 0.804 0.996 ]);
-% light('Position',[0 lims(4) lims(6)],'Style','local','color',[ 0.000 0.502 1.000 ]);
-% light('Position',[lims(2) 0 lims(6)],'Style','local','color',[ 0.855 0.804 0.996 ]);
-% light('Position',[0 lims(3) lims(5)-lims(6)-2],'Style','local','color',[ 0.906 0.306 0.012 ]); 
+light('Position',[0 lims(4) lims(6)],'Style','local','color',[ 0.000 0.502 1.000 ]);
+light('Position',[lims(2) 0 lims(6)],'Style','local','color',[ 0.855 0.804 0.996 ]);
+light('Position',[0 lims(3) lims(5)-lims(6)-2],'Style','local','color',[ 0.906 0.306 0.012 ]); 
 %camproj('perspective');( picking works only with ortho
 %light('Position',[2 1 15],'Style','infinite','color','y');
 

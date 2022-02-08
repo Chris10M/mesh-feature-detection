@@ -24,22 +24,81 @@ disp(sum(K_2));
 
 options.face_vertex_color = K_G;
 figure()
-subplot(1,2,1); plotmesh(vertices, faces, options); colorbar;
-subplot(1,2,2); histogram(K_G);
+plotmesh(vertices, faces, options); colorbar;
+title("Gaussian curvature",'FontSize', 16);
+zoom(2); ax = gca; ax.Clipping = 'off';
+
+% figure()
+% histogram(K_G,32);
+% title("Gaussian curvature histogram",'FontSize', 16);
+
 
 options.face_vertex_color = K_H;
 figure()
-plotmesh(vertices, faces, options);
+plotmesh(vertices, faces, options); colorbar;
+title("Mean curvature",'FontSize', 16);
+zoom(2); ax = gca; ax.Clipping = 'off';
+
+% figure()
+% histogram(K_H,32);
+% title("Mean curvature histogram",'FontSize', 16);
+
 
 options.face_vertex_color = K_1;
 figure()
-plotmesh(vertices, faces, options);
+plotmesh(vertices, faces, options); colorbar;
+title("First principal curvature",'FontSize', 16);
+zoom(2); ax = gca; ax.Clipping = 'off';
+
+% figure()
+% histogram(K_1,32);
+% title("First principal curvature histogram",'FontSize', 16);
+
 
 options.face_vertex_color = K_2;
 figure()
-plotmesh(vertices, faces, options);
+plotmesh(vertices, faces, options); colorbar;
+title("Second principal curvature",'FontSize', 16);
+zoom(2); ax = gca; ax.Clipping = 'off';
 
-%% Ridges
+% figure()
+% histogram(K_2,32);
+% title("Second principal curvature histogram",'FontSize', 16);
+
+
+
+%% "Ridges" (noise and anisotropic smoothing)
+% Load everything:
+mesh_file = 'samplemeshes/fandisk.off';
+noiseScale = 0.01;
+noiseRatio = 50;
+
+[vertices, faces] = loadmesh(mesh_file);
+verticesClean = vertices.';
+temp = randi(100,1,size(vertices,2)); rI = temp;
+rI(temp>noiseRatio) = 0; rI(temp<=noiseRatio) = 1;
+rI = [rI; rI; rI];
+vertices = (vertices+randn(size(vertices)).*rI*noiseScale).'; %noise
+faces = faces.';
+
+figure()
+plotmesh_lighting(verticesClean, faces);
+title("Original Mesh",'FontSize', 16);
+zoom(2); ax = gca; ax.Clipping = 'off';
+
+figure()
+plotmesh_lighting(vertices, faces);
+title("Noisy Mesh",'FontSize', 16);
+zoom(2); ax = gca; ax.Clipping = 'off';
+
+
+A_mixed = calc_A_mixed(vertices, faces);
+
+K_H = get_mean_curvature(vertices, faces, A_mixed);
+K_G = get_gaussian_curvature(vertices, faces, A_mixed);
+[K_1, K_2 ]= get_principal_curvatures(K_H, K_G);
+
+
 % weights for the theoretical smoothing
 w = zeros(size(K_H));
 
@@ -72,8 +131,12 @@ end
 figure()
 options.face_vertex_color = w;
 plotmesh(vertices, faces, options); colorbar;
+title("Smoothing factor",'FontSize', 16);
+zoom(2); ax = gca; ax.Clipping = 'off';
     
-    
+
+
+
 %% Classification - getting the histograms
 clc;
 
@@ -91,15 +154,13 @@ for k = 1:size(fileList,1)
     hists(k,:) = extract_mesh_feature(file_path);
 end
 
-%% Classification - comparing histograms
+%% Classification - Comparing histograms
 clc;
-
 % Distance mode
 d = 1;
 %select one random model
 index = 12;
 % index = randi([1,size(hists,1)]);
-
 
 fprintf(1, 'Selected %s\n\n', fileList(index).name);
 currentH = hists(index);
@@ -116,6 +177,38 @@ end
 
 fprintf(1, '\nBest match with %s, distance: %f\n', fileList(mi).name, mv);
 
+
+%% Classification - every comparison + Noise
+clc;
+% Distance mode
+d = 2;
+
+%Obtaining Noisy histograms
+noisyHists = zeros(size(fileList,1),256);
+for k = 1:size(fileList,1)
+    file_name = fileList(k).name;
+    file_path = append(base_path, file_name);
+    fprintf(1, 'Now reading %s\n', file_name);
+    noisyHists(k,:) = extract_mesh_feature(file_path, true);
+end
+
+clc;
+
+CompleteDistances = zeros(size(hists,1));
+for i = 1:size(noisyHists,1)
+    
+    currentH = noisyHists(i);
+    
+    for j = 1:size(hists,1)
+        CompleteDistances(i,j) = ws_distance(currentH, hists(j),d);
+    end
+    
+    % best match
+    [mv, mi] = min(CompleteDistances(i,:)');
+    fprintf(1, '%s best match: %s, distance: %f\n',fileList(i).name, fileList(mi).name, mv);
+end
+
+% disp(CompleteDistances)
 
 %% Classification into groups
 
