@@ -1,25 +1,26 @@
-function histograms = extract_mesh_feature(file_name, noise)
+function histograms = extract_mesh_feature(file_name, display, perturbation, pertRatio)
 
 if nargin<2
-    noise = false;
+    display = false;
+end
+if nargin<3
+    perturbation = false;
+end
+if nargin<4
+    pertRatio = 80;
 end
 
-%applied if noise
-noiseScale = 0.001;
-noiseRatio = 30;
-
-display = false;
 
 [vertices, faces] = loadmesh(file_name);
-if noise
-    temp = randi(100,1,size(vertices,2)); rI = temp;
-    rI(temp>noiseRatio) = 0; rI(temp<=noiseRatio) = 1;
-    rI = [rI; rI; rI];
-    vertices = (vertices+randn(size(vertices)).*rI*noiseScale).'; %noise
-else
-    vertices = vertices.';
-end
+vertices = vertices.';
 faces = faces.';
+
+
+%applied if perturbation
+if perturbation
+    rI = randi(100,size(faces,1),1);
+    faces = faces(rI<=pertRatio,:);
+end
 
 % Center model
 vertices = vertices() - mean(vertices);

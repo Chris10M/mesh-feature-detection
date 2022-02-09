@@ -159,7 +159,7 @@ clc;
 % Distance mode
 d = 1;
 %select one random model
-index = 12;
+index = 1;
 % index = randi([1,size(hists,1)]);
 
 fprintf(1, 'Selected %s\n\n', fileList(index).name);
@@ -181,7 +181,9 @@ fprintf(1, '\nBest match with %s, distance: %f\n', fileList(mi).name, mv);
 %% Classification - every comparison + Noise
 clc;
 % Distance mode
-d = 2;
+d = 1;
+% percentage of faces maintained
+pertPer = 100;
 
 %Obtaining Noisy histograms
 noisyHists = zeros(size(fileList,1),256);
@@ -189,11 +191,12 @@ for k = 1:size(fileList,1)
     file_name = fileList(k).name;
     file_path = append(base_path, file_name);
     fprintf(1, 'Now reading %s\n', file_name);
-    noisyHists(k,:) = extract_mesh_feature(file_path, true);
+    noisyHists(k,:) = extract_mesh_feature(file_path, false, true, pertPer);
 end
 
 clc;
 
+correct = 0;
 CompleteDistances = zeros(size(hists,1));
 for i = 1:size(noisyHists,1)
     
@@ -205,10 +208,23 @@ for i = 1:size(noisyHists,1)
     
     % best match
     [mv, mi] = min(CompleteDistances(i,:)');
-    fprintf(1, '%s best match: %s, distance: %f\n',fileList(i).name, fileList(mi).name, mv);
+    fprintf(1, '%s best match: %s, distance: %f',fileList(i).name, fileList(mi).name, mv);
+    if strcmp(fileList(i).name,fileList(mi).name)
+        correct = correct+1;
+        fprintf(1, ' Correct!');
+    end
+    fprintf(1, '\n');
 end
 
+fprintf(1, '\nCorrect guesses: %i\n',correct);
+
+
 % disp(CompleteDistances)
+
+%% Show perturbated mesh
+pert_file_path = 'samplemeshes/pig.off';
+extract_mesh_feature(pert_file_path, true); title("Original mesh");
+extract_mesh_feature(pert_file_path, true, true, 90); title("Corrupted mesh");
 
 %% Classification into groups
 
